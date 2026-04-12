@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coating Inspector Exam Prep — Professional Practice Tests</title>
+<meta name="description" content="Independently developed practice tests for professional coating inspection certification candidates. Study Mode and Exam Simulation available.">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #F4F1EC;
+  --bg2: #EAE6DE;
+  --navy: #1A2B3C;
+  --navy2: #243447;
+  --amber: #C8760A;
+  --amber2: #E8960A;
+  --green: #1A6B3C;
+  --red: #B03020;
+  --text: #1A2B3C;
+  --muted: #6B7A8D;
+  --border: #D4CFC6;
+  --white: #FDFCFA;
+  --sans: 'DM Sans', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.6;
+}
+
+/* NAV */
+nav {
+  background: var(--navy);
+  padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #fff;
+  letter-spacing: 1px;
+}
+.nav-logo span { color: var(--amber2); }
+.nav-links { display: flex; gap: 24px; align-items: center; }
+.nav-links a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: #fff; }
+.nav-cta {
+  background: var(--amber);
+  color: #fff !important;
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-weight: 600 !important;
+}
+.nav-cta:hover { background: var(--amber2) !important; }
+
+/* HERO */
+.hero {
+  background: var(--navy);
+  padding: 80px 40px 100px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(200,118,10,0.12) 0%, transparent 70%);
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(200,118,10,0.15);
+  border: 1px solid rgba(200,118,10,0.3);
+  color: var(--amber2);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  padding: 6px 16px;
+  border-radius: 2px;
+  margin-bottom: 28px;
+}
+.hero h1 {
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.15;
+  max-width: 760px;
+  margin: 0 auto 20px;
+}
+.hero h1 em {
+  font-style: normal;
+  color: var(--amber2);
+}
+.hero-sub {
+  color: rgba(255,255,255,0.6);
+  font-size: 1rem;
+  max-width: 540px;
+  margin: 0 auto 40px;
+  line-height: 1.7;
+}
+.hero-disclaimer {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.5px;
+  margin-top: 32px;
+}
+.hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--amber);
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  display: inline-block;
+}
+.btn-primary:hover { background: var(--amber2); transform: translateY(-2px); }
+.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: all 0.2s;
+  display: inline-block;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.13); }
+
+/* STATS BAR */
+.stats-bar {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 24px 40px;
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+.stat { text-align: center; }
+.stat-num {
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--amber);
+  display: block;
+}
+.stat-lbl {
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+/* SECTION */
+section { padding: 80px 40px; }
+.container { max-width: 1000px; margin: 0 auto; }
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  color: var(--amber);
+  margin-bottom: 12px;
+}
+h2 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 16px;
+  line-height: 1.25;
+}
+.section-intro {
+  color: var(--muted);
+  font-size: 0.95rem;
+  max-width: 580px;
+  line-height: 1.7;
+  margin-bottom: 48px;
+}
+
+/* MODE CARDS */
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+.mode-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 32px;
+  position: relative;
+}
+.mode-card.featured {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 1px var(--amber);
+}
+.mode-badge {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+.badge-study { background: rgba(26,107,60,0.1); color: var(--green); }
+.badge-exam { background: rgba(200,118,10,0.1); color: var(--amber); }
+.mode-card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+.mode-desc { color: var(--muted); font-size: 0.875rem; line-height: 1.65; margin-bottom: 24px; }
+.mode-features { list-style: none; margin-bottom: 28px; }
+.mode-features li {
+  font-size: 0.85rem;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--bg2);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.mode-features li:last-child { border-bottom: none; }
+.feat-icon { color: var(--green); font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+.feat-icon.no { color: var(--muted); }
+.mode-price {
+  font-family: var(--mono);
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+.mode-price span { font-size: 0.85rem; color: var(--muted); font-weight: 400; }
+.btn-buy {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  text-align: center;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.btn-buy-study { background: var(--green); color: #fff; }
+.btn-buy-study:hover { background: #1f8049; }
+.btn-buy-exam { background: var(--amber); color: #fff; }
+.btn-buy-exam:hover { background: var(--amber2); }
+
+/* BUNDLE */
+.bundle-card {
+  background: var(--navy);
+  border-radius: 8px;
+  padding: 32px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.bundle-left h3 { color: #fff; font-size: 1.2rem; margin-bottom: 6px; }
+.bundle-left p { color: rgba(255,255,255,0.6); font-size: 0.875rem; }
+.bundle-right { display: flex; align-items: center; gap: 24px; }
+.bundle-price { font-family: var(--mono); }
+.bundle-was { color: rgba(255,255,255,0.3); text-decoration: line-through; font-size: 0.9rem; }
+.bundle-now { color: var(--amber2); font-size: 2rem; font-weight: 500; }
+.bundle-save { background: rgba(200,118,10,0.2); color: var(--amber2); font-size: 0.7rem; letter-spacing: 1px; padding: 3px 10px; border-radius: 2px; margin-top: 4px; display: inline-block; }
+.btn-bundle { background: var(--amber); color: #fff; padding: 13px 28px; border-radius: 4px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: all 0.2s; display: inline-block; }
+.btn-bundle:hover { background: var(--amber2); }
+
+/* HOW IT WORKS */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; }
+.step { position: relative; }
+.step-num {
+  font-family: var(--mono);
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--bg2);
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.step h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
+.step p { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
+
+/* DOMAIN BREAKDOWN */
+.domain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.domain-item {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+}
+.domain-name { font-size: 0.8rem; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+.domain-bar { height: 4px; background: var(--bg2); border-radius: 2px; margin-bottom: 6px; }
+.domain-fill { height: 4px; background: var(--amber); border-radius: 2px; }
+.domain-pct { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+
+/* FAQ */
+.faq-list { max-width: 680px; }
+.faq-item { border-bottom: 1px solid var(--border); padding: 20px 0; }
+.faq-q { font-weight: 600; font-size: 0.95rem; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.faq-a { font-size: 0.875rem; color: var(--muted); line-height: 1.7; }
+
+/* LEGAL FOOTER */
+footer {
+  background: var(--navy);
+  color: rgba(255,255,255,0.5);
+  padding: 40px;
+  text-align: center;
+}
+.footer-disclaimer {
+  font-size: 0.75rem;
+  line-height: 1.8;
+  max-width: 700px;
+  margin: 0 auto 24px;
+}
+.footer-links { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+.footer-links a { color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.78rem; }
+.footer-links a:hover { color: rgba(255,255,255,0.7); }
+.footer-copy { font-size: 0.72rem; color: rgba(255,255,255,0.25); }
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  nav { padding: 14px 20px; }
+  .hero { padding: 60px 20px 80px; }
+  section { padding: 60px 20px; }
+  .stats-bar { padding: 20px; gap: 32px; }
+  .bundle-card { padding: 24px; }
+  footer { padding: 32px 20px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">COATING<span>INSPECTOR</span>PREP</div>
+  <div class="nav-links">
+    <a href="#modes">Products</a>
+    <a href="#how">How it works</a>
+    <a href="#faq">FAQ</a>
+    <a href="#modes" class="nav-cta">Get Access</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">INDEPENDENTLY DEVELOPED · NOT AFFILIATED WITH ANY CERTIFICATION BODY</div>
+  <h1>Prepare for your<br><em>Coating Inspector</em> certification exam</h1>
+  <p class="hero-sub">Practice questions covering all exam domains — surface preparation, coatings, inspection process, standards, documentation, and more. Two formats: study with explanations or full exam simulation.</p>
+  <div class="hero-btns">
+    <a href="#modes" class="btn-primary">See Products →</a>
+    <a href="#how" class="btn-secondary">How it works</a>
+  </div>
+  <p class="hero-disclaimer">This product is independently developed. It is not affiliated with, endorsed by, or licensed by any professional certification body.</p>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><span class="stat-num">98</span><span class="stat-lbl">QUESTIONS PER PRODUCT</span></div>
+  <div class="stat"><span class="stat-num">11</span><span class="stat-lbl">EXAM DOMAINS COVERED</span></div>
+  <div class="stat"><span class="stat-num">2</span><span class="stat-lbl">PREPARATION FORMATS</span></div>
+  <div class="stat"><span class="stat-num">160<span style="font-size:1rem">min</span></span><span class="stat-lbl">EXAM SIMULATION TIMER</span></div>
+</div>
+
+<!-- PRODUCTS -->
+<section id="modes" style="background: var(--bg);">
+<div class="container">
+  <div class="section-label">PRODUCTS</div>
+  <h2>Two ways to prepare.<br>Same questions? No — different sets.</h2>
+  <p class="section-intro">Study Mode and Exam Mode contain different question sets. Buy both and you practice with 196 unique questions across all domains.</p>
+
+  <div class="mode-grid">
+    <!-- STUDY -->
+    <div class="mode-card">
+      <span class="mode-badge badge-study">STUDY MODE</span>
+      <h3>Learn as you go</h3>
+      <p class="mode-desc">Answer each question and see immediately if you were right — with a brief explanation of why. Filter by domain to target your weak spots.</p>
+      <ul class="mode-features">
+        <li><span class="feat-icon">✓</span> 98 questions across all 11 domains</li>
+        <li><span class="feat-icon">✓</span> Instant feedback after each answer</li>
+        <li><span class="feat-icon">✓</span> Explanation for every question</li>
+        <li><span class="feat-icon">✓</span> Filter by domain</li>
+        <li><span class="feat-icon">✓</span> Scientific calculator included</li>
+        <li><span class="feat-icon">✓</span> Score + domain breakdown at end</li>
+        <li><span class="feat-icon no">—</span> No timer</li>
+        <li><span class="feat-icon no">—</span> No question flagging</li>
+      </ul>
+      <div class="mode-price">€70 <span>one-time</span></div>
+      <a href="https://buy.stripe.com/fZu5kD4Ia4H31e13YDdMI02" class="btn-buy btn-buy-study" target="_blank">Buy Study Mode</a>
+    </div>
+
+    <!-- EXAM -->
+    <div class="mode-card featured">
+      <span class="mode-badge badge-exam">EXAM MODE</span>
+      <h3>Simulate the real thing</h3>
+      <p class="mode-desc">Timed, realistic exam simulation. No answers revealed during the test. Flag questions, take notes, review before submitting. Score only at the end.</p>
+      <ul class="mode-features">
+        <li><span class="feat-icon">✓</span> 98 questions — different set from Study</li>
+        <li><span class="feat-icon">✓</span> 160-minute countdown timer</li>
+        <li><span class="feat-icon">✓</span> Flag questions and return later</li>
+        <li><span class="feat-icon">✓</span> Per-question notes</li>
+        <li><span class="feat-icon">✓</span> Scientific calculator included</li>
+        <li><span class="feat-icon">✓</span> Full review before final submit</li>
+        <li><span class="feat-icon">✓</span> Score + domain breakdown at end</li>
+        <li><span class="feat-icon no">—</span> No answers during test</li>
+      </ul>
+      <div class="mode-price">€70 <span>one-time</span></div>
+      <a href="https://buy.stripe.com/00w8wP8Yqa1ng8V7aPdMI01" class="btn-buy btn-buy-exam" target="_blank">Buy Exam Mode</a>
+    </div>
+  </div>
+
+  <!-- BUNDLE -->
+  <div class="bundle-card">
+    <div class="bundle-left">
+      <h3>Study + Exam Bundle</h3>
+      <p>196 unique questions. The complete preparation package.</p>
+    </div>
+    <div class="bundle-right">
+      <div class="bundle-price">
+        <div class="bundle-was">€140</div>
+        <div class="bundle-now">€119</div>
+        <div class="bundle-save">SAVE €21</div>
+      </div>
+      <a href="https://buy.stripe.com/fZuaEX7Uma1n4qd3YDdMI00" class="btn-bundle" target="_blank">Buy Bundle</a>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="background: var(--bg2);">
+<div class="container">
+  <div class="section-label">HOW IT WORKS</div>
+  <h2>From purchase to practice<br>in under 2 minutes</h2>
+  <p class="section-intro">No account creation. No subscription. One payment, one code, immediate access.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h4>Choose your product</h4>
+      <p>Select Study Mode, Exam Mode, or the Bundle. All are one-time purchases — no recurring charges.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h4>Pay securely via Stripe</h4>
+      <p>Stripe handles the payment. Your card details never touch our servers. Email required for delivery.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h4>Receive your access code</h4>
+      <p>A unique code in format COAT-XXXX-XXXX is emailed to you immediately after payment confirmation.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h4>Enter code and start</h4>
+      <p>Go to coatinginspectorprep.com/access, enter your code, and begin immediately. Use as many times as you like.</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- DOMAINS -->
+<section style="background: var(--bg);">
+<div class="container">
+  <div class="section-label">COVERAGE</div>
+  <h2>All exam domains covered</h2>
+  <p class="section-intro">Questions are weighted to reflect the actual exam blueprint distribution.</p>
+  <div class="domain-grid">
+    <div class="domain-item"><div class="domain-name">Surface Preparation</div><div class="domain-bar"><div class="domain-fill" style="width:100%"></div></div><div class="domain-pct">20% · 20Q per set</div></div>
+    <div class="domain-item"><div class="domain-name">Coatings</div><div class="domain-bar"><div class="domain-fill" style="width:100%"></div></div><div class="domain-pct">20% · 20Q per set</div></div>
+    <div class="domain-item"><div class="domain-name">Inspection Process</div><div class="domain-bar"><div class="domain-fill" style="width:75%"></div></div><div class="domain-pct">15% · 15Q per set</div></div>
+    <div class="domain-item"><div class="domain-name">Standards & Specs</div><div class="domain-bar"><div class="domain-fill" style="width:50%"></div></div><div class="domain-pct">10% · 10Q per set</div></div>
+    <div class="domain-item"><div class="domain-name">Documentation</div><div class="domain-bar"><div class="domain-fill" style="width:50%"></div></div><div class="domain-pct">10% · 8Q per set</div></div>
+    <div class="domain-item"><div class="domain-name">Application Methods</div><div class="domain-bar"><div class="domain-fill" style="width:40%"></div></div><div class="domain-pct">8% · 8Q per set</div></div>
+    <div class="domain-item"><div class="domain-name">Environmental</div><div class="domain-bar"><div class="domain-fill" style="width:25%"></div></div><div class="domain-pct">5% · 5Q per set</div></div>
+    <div class="domain-item"><div class="domain-name">Corrosion</div><div class="domain-bar"><div class="domain-fill" style="width:25%"></div></div><div class="domain-pct">5% · 5Q per set</div></div>
+    <div class="domain-item"><div class="domain-name">Safety</div><div class="domain-bar"><div class="domain-fill" style="width:15%"></div></div><div class="domain-pct">3% · 3Q per set</div></div>
+    <div class="domain-item"><div class="domain-name">Teamwork</div><div class="domain-bar"><div class="domain-fill" style="width:10%"></div></div><div class="domain-pct">2% · 2Q per set</div></div>
+    <div class="domain-item"><div class="domain-name">Ethics / CoC</div><div class="domain-bar"><div class="domain-fill" style="width:10%"></div></div><div class="domain-pct">2% · 2Q per set</div></div>
+  </div>
+</div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background: var(--bg2);">
+<div class="container">
+  <div class="section-label">FAQ</div>
+  <h2>Common questions</h2>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q">Is this affiliated with AMPP or any certification body?</div>
+      <div class="faq-a">No. This product is independently developed. It is not affiliated with, endorsed by, or licensed by AMPP or any other certification body. All questions are original and written independently by a certified coating inspection professional.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can I use the same code multiple times?</div>
+      <div class="faq-a">Yes. Your access code gives unlimited attempts. You can retake the test as many times as you want — questions are randomized each session.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Are the Study and Exam sets the same questions?</div>
+      <div class="faq-a">No. They contain completely different questions — no overlap. The bundle gives you 196 unique questions total.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How quickly do I receive my access code?</div>
+      <div class="faq-a">Immediately after payment confirmation — the code is emailed automatically. Check your spam folder if you don't see it within 5 minutes.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What if I need a refund?</div>
+      <div class="faq-a">Because access codes are delivered instantly and digitally, we do not offer refunds after the code has been issued. If you experience a technical issue, contact us and we will resolve it.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Does the test guarantee I will pass the certification exam?</div>
+      <div class="faq-a">No. This is a practice tool. Performance on this test does not guarantee any specific outcome on a professional certification examination. Actual exam content, format, and passing criteria are determined solely by the relevant certification body.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-disclaimer">
+    This product is independently developed and is not affiliated with, endorsed by, sponsored by, or licensed by AMPP (Association for Materials Protection and Performance), NACE International, SSPC, or any other professional association or certification body. "Coating Inspector" is used as a descriptive term only. All questions are original and written independently. Use of any certification body's standards names is for descriptive reference purposes only.
+  </p>
+  <div class="footer-links">
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/terms">Terms of Service</a>
+    <a href="/cookies">Cookie Policy</a>
+    <a href="mailto:sales@smartcoating.it">Contact</a>
+  </div>
+  <p class="footer-copy">© 2025 Smart Coating Ltd · Belmond Flat 4, Triq Il-Gibjun, Attard ATD 2083, Malta</p>
+</footer>
+
+</body>
+</html>
