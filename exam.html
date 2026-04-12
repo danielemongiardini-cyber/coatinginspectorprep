@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exam Mode — Coating Inspector Exam Prep</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+:root {
+  --bg: #F4F1EC; --bg2: #EAE6DE; --navy: #1A2B3C; --amber: #C8760A; --amber2: #E8960A;
+  --green: #1A6B3C; --red: #B03020; --border: #D4CFC6; --white: #FDFCFA;
+  --muted: #6B7A8D; --sans: 'DM Sans', sans-serif; --mono: 'DM Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); font-family: var(--sans); color: var(--navy); min-height: 100vh; }
+
+nav {
+  background: var(--navy); padding: 14px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+.nav-logo { font-family: var(--mono); font-size: 0.72rem; color: #fff; letter-spacing: 1px; text-decoration: none; }
+.nav-logo span { color: var(--amber2); }
+.nav-mode { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 2px;
+  background: rgba(200,118,10,0.2); color: var(--amber2); padding: 4px 12px; border-radius: 2px; }
+
+/* EXAM TOPBAR */
+#topbar {
+  background: var(--white); border-bottom: 1px solid var(--border);
+  padding: 12px 32px; display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+}
+.tb-stat { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.tb-stat b { color: var(--navy); }
+#timer-display {
+  font-family: var(--mono); font-size: 1.1rem; font-weight: 500;
+  color: var(--navy); min-width: 80px;
+}
+#timer-display.warning { color: var(--amber); }
+#timer-display.critical { color: var(--red); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+#progress-wrap { flex: 1; height: 6px; background: var(--bg2); border-radius: 3px; min-width: 80px; }
+#progress-bar { height: 6px; background: var(--amber); border-radius: 3px; width: 0%; transition: width 0.4s; }
+#flagged-count { font-family: var(--mono); font-size: 0.7rem; color: var(--amber); }
+
+/* Q NAV DOTS */
+#q-nav-wrap {
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 10px 32px; overflow-x: auto;
+}
+#q-nav { display: flex; gap: 6px; min-width: max-content; }
+.q-dot {
+  width: 28px; height: 28px; border-radius: 4px; border: none;
+  font-family: var(--mono); font-size: 0.65rem; cursor: pointer;
+  background: var(--white); color: var(--muted); transition: all 0.15s;
+  border: 1px solid var(--border);
+}
+.q-dot:hover { border-color: var(--amber); }
+.q-dot.current { background: var(--amber); color: #fff; border-color: var(--amber); }
+.q-dot.answered { background: var(--navy); color: #fff; border-color: var(--navy); }
+.q-dot.flagged { background: #fff3cd; color: var(--amber); border-color: var(--amber); }
+.q-dot.answered.flagged { background: #fef3c7; color: var(--amber); border-color: var(--amber); }
+
+/* MAIN */
+#main { max-width: 800px; margin: 0 auto; padding: 32px 24px 140px; }
+
+/* QUESTION CARD */
+.q-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: 8px;
+  padding: 24px 28px; display: none;
+}
+.q-card.active { display: block; }
+.q-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.q-domain { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 2px;
+  background: rgba(200,118,10,0.08); color: var(--amber); padding: 2px 8px; border-radius: 2px; }
+.q-num { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); margin-left: auto; }
+.q-text { font-size: 0.95rem; line-height: 1.65; margin-bottom: 16px; font-weight: 500; }
+
+/* FLAG + NOTE */
+.q-actions { display: flex; gap: 10px; margin-bottom: 20px; }
+.btn-flag {
+  font-family: var(--mono); font-size: 0.68rem; letter-spacing: 1px;
+  padding: 6px 14px; border-radius: 4px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--muted); cursor: pointer; transition: all 0.15s;
+}
+.btn-flag:hover { border-color: var(--amber); color: var(--amber); }
+.btn-flag.flagged { background: #fff3cd; border-color: var(--amber); color: var(--amber); }
+.btn-note {
+  font-family: var(--mono); font-size: 0.68rem; letter-spacing: 1px;
+  padding: 6px 14px; border-radius: 4px; border: 1px solid var(--border);
+  background: var(--bg); color: var(--muted); cursor: pointer; transition: all 0.15s;
+}
+.btn-note:hover { border-color: var(--navy); color: var(--navy); }
+textarea.note-field {
+  width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px;
+  font-family: var(--sans); font-size: 0.85rem; color: var(--navy);
+  background: var(--bg); resize: vertical; min-height: 70px; margin-bottom: 16px;
+  outline: none;
+}
+textarea.note-field:focus { border-color: var(--amber); }
+
+.options { display: flex; flex-direction: column; gap: 8px; }
+.opt {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 13px 16px; border: 1.5px solid var(--border); border-radius: 6px;
+  cursor: pointer; transition: all 0.15s; background: var(--bg);
+}
+.opt:hover:not(.selected) { border-color: var(--amber); background: #fdf8f0; }
+.opt.selected { border-color: var(--navy); background: #eef2f7; }
+.opt-letter {
+  font-family: var(--mono); font-size: 0.75rem; font-weight: 600;
+  min-width: 26px; height: 26px; border-radius: 4px;
+  background: var(--bg2); display: flex; align-items: center; justify-content: center;
+  color: var(--muted); flex-shrink: 0; margin-top: 1px;
+}
+.opt.selected .opt-letter { background: var(--navy); color: #fff; }
+.opt-text { font-size: 0.875rem; line-height: 1.55; }
+
+/* EXAM NAVIGATION */
+#bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--white); border-top: 1px solid var(--border);
+  padding: 12px 32px; display: flex; align-items: center; gap: 12px;
+  z-index: 100; box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+}
+.nav-btn {
+  font-family: var(--sans); font-size: 0.85rem; font-weight: 600;
+  padding: 9px 20px; border-radius: 5px; cursor: pointer; border: none; transition: all 0.2s;
+}
+.btn-prev { background: var(--bg2); color: var(--navy); border: 1px solid var(--border); }
+.btn-prev:hover { border-color: var(--navy); }
+.btn-next { background: var(--navy); color: #fff; }
+.btn-next:hover { background: #243447; }
+.btn-submit { background: var(--amber); color: #fff; margin-left: auto; }
+.btn-submit:hover { background: var(--amber2); }
+#nav-status { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); margin: 0 auto; text-align: center; }
+
+/* REVIEW PANEL */
+#review-panel {
+  display: none; max-width: 800px; margin: 32px auto; padding: 0 24px 140px;
+}
+#review-panel.show { display: block; }
+.review-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: 8px;
+  padding: 24px 28px; margin-bottom: 12px; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; gap: 16px;
+}
+.review-card:hover { border-color: var(--amber); }
+.rc-num { font-family: var(--mono); font-size: 0.8rem; font-weight: 600; min-width: 32px; color: var(--muted); }
+.rc-text { flex: 1; font-size: 0.875rem; line-height: 1.5; }
+.rc-status { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 1px;
+  padding: 3px 8px; border-radius: 2px; flex-shrink: 0; }
+.rc-answered { background: rgba(26,55,60,0.1); color: var(--navy); }
+.rc-unanswered { background: rgba(176,48,32,0.1); color: var(--red); }
+.rc-flagged { background: rgba(200,118,10,0.12); color: var(--amber); }
+
+/* CALCULATOR */
+#calc-toggle {
+  position: fixed; bottom: 80px; right: 24px;
+  background: var(--navy); color: #fff; border: none; border-radius: 50%;
+  width: 48px; height: 48px; font-size: 1.2rem; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 200; transition: all 0.2s;
+}
+#calc-toggle:hover { background: var(--amber); }
+#calculator {
+  position: fixed; bottom: 140px; right: 24px;
+  background: var(--navy); border-radius: 12px;
+  padding: 16px; width: 220px; z-index: 200;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3); display: none;
+}
+#calculator.show { display: block; }
+#calc-display {
+  background: #0d1f2e; color: #fff; font-family: var(--mono);
+  font-size: 1.1rem; text-align: right; padding: 10px 14px;
+  border-radius: 6px; margin-bottom: 10px; min-height: 44px; word-break: break-all;
+}
+.calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.calc-btn { padding: 10px 4px; border: none; border-radius: 5px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; background: rgba(255,255,255,0.1); color: #fff; transition: all 0.15s; }
+.calc-btn:hover { background: rgba(255,255,255,0.2); }
+.calc-btn.op { background: rgba(200,118,10,0.3); color: var(--amber2); }
+.calc-btn.eq { background: var(--amber); color: #fff; }
+.calc-btn.clr { background: rgba(176,48,32,0.3); color: #f87171; }
+
+/* SCORE */
+#score-panel { display: none; max-width: 680px; margin: 40px auto; padding: 0 24px 100px; }
+#score-panel.show { display: block; }
+.score-card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 40px; text-align: center; margin-bottom: 24px; }
+.score-circle { width: 140px; height: 140px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 0 auto 24px; border: 8px solid; }
+.score-pct { font-family: var(--mono); font-size: 2.2rem; font-weight: 500; }
+.score-lbl { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 2px; color: var(--muted); }
+.score-nums { display: flex; gap: 28px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
+.sn { text-align: center; }
+.sn-val { font-family: var(--mono); font-size: 1.5rem; font-weight: 500; }
+.sn-lbl { font-size: 0.68rem; color: var(--muted); letter-spacing: 1px; }
+.result-msg { font-size: 0.875rem; color: var(--muted); line-height: 1.7; max-width: 440px; margin: 0 auto; }
+.domain-results { text-align: left; }
+.dr-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--bg2); }
+.dr-row:last-child { border-bottom: none; }
+.dr-name { font-size: 0.82rem; font-weight: 500; flex: 1; }
+.dr-score { font-family: var(--mono); font-size: 0.78rem; min-width: 50px; text-align: right; }
+.dr-bar { width: 80px; height: 5px; background: var(--bg2); border-radius: 2px; }
+.dr-fill { height: 5px; border-radius: 2px; }
+.btn-restart { background: var(--amber); color: #fff; border: none; padding: 13px 32px; border-radius: 5px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 24px; transition: all 0.2s; font-family: var(--sans); }
+.btn-restart:hover { background: var(--amber2); }
+
+@media (max-width: 600px) {
+  nav, #topbar, #q-nav-wrap, #bottom-nav { padding-left: 16px; padding-right: 16px; }
+  #main { padding: 20px 16px 140px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">COATING<span>INSPECTOR</span>PREP</a>
+  <span class="nav-mode">EXAM MODE</span>
+</nav>
+
+<div id="topbar">
+  <div id="timer-display">2:40:00</div>
+  <div class="tb-stat">Q: <b id="hdr-total">98</b></div>
+  <div class="tb-stat">Done: <b id="hdr-done">0</b></div>
+  <div id="flagged-count">🚩 0 flagged</div>
+  <div id="progress-wrap"><div id="progress-bar"></div></div>
+</div>
+
+<div id="q-nav-wrap"><div id="q-nav"></div></div>
+
+<div id="main">
+  <div id="quiz-area"></div>
+  <div id="review-panel"></div>
+  <div id="score-panel"></div>
+</div>
+
+<button id="calc-toggle" onclick="toggleCalc()" title="Calculator">🧮</button>
+<div id="calculator">
+  <div id="calc-display">0</div>
+  <div class="calc-grid">
+    <button class="calc-btn clr" onclick="calcInput('C')">C</button>
+    <button class="calc-btn op" onclick="calcInput('(')">(</button>
+    <button class="calc-btn op" onclick="calcInput(')')">)</button>
+    <button class="calc-btn op" onclick="calcInput('/')">÷</button>
+    <button class="calc-btn" onclick="calcInput('7')">7</button>
+    <button class="calc-btn" onclick="calcInput('8')">8</button>
+    <button class="calc-btn" onclick="calcInput('9')">9</button>
+    <button class="calc-btn op" onclick="calcInput('*')">×</button>
+    <button class="calc-btn" onclick="calcInput('4')">4</button>
+    <button class="calc-btn" onclick="calcInput('5')">5</button>
+    <button class="calc-btn" onclick="calcInput('6')">6</button>
+    <button class="calc-btn op" onclick="calcInput('-')">−</button>
+    <button class="calc-btn" onclick="calcInput('1')">1</button>
+    <button class="calc-btn" onclick="calcInput('2')">2</button>
+    <button class="calc-btn" onclick="calcInput('3')">3</button>
+    <button class="calc-btn op" onclick="calcInput('+')">+</button>
+    <button class="calc-btn" onclick="calcInput('0')" style="grid-column:span 2">0</button>
+    <button class="calc-btn" onclick="calcInput('.')">.</button>
+    <button class="calc-btn eq" onclick="calcInput('=')">=</button>
+  </div>
+</div>
+
+<div id="bottom-nav">
+  <button class="nav-btn btn-prev" id="btn-prev" onclick="goTo(currentQ-1)">← PREV</button>
+  <div id="nav-status">Q 1 / 98</div>
+  <button class="nav-btn btn-next" id="btn-next" onclick="goTo(currentQ+1)">NEXT →</button>
+  <button class="nav-btn btn-submit" onclick="showReview()">Review & Submit →</button>
+</div>
+
+<script>
+const EXAM_Q = [
+{domain:"Surface Preparation",q:"The selection of abrasive media on a project is typically dependent on which primary criterion?",opts:[{l:"A",t:"Local availability only"},{l:"B",t:"Type of surface to be prepared"},{l:"C",t:"Inspector's preference"},{l:"D",t:"Abrasive cost alone"}],ans:"B",exp:""},
+{domain:"Surface Preparation",q:"At what stages of a coating project could pre-cleaning be required?",opts:[{l:"A",t:"Only when specified by the inspector"},{l:"B",t:"Before surface preparation AND after surface preparation, before coating application"},{l:"C",t:"Before surface preparation only"},{l:"D",t:"After surface preparation, before coating application only"}],ans:"B",exp:""},
+{domain:"Surface Preparation",q:"NACE No.4 / SSPC-SP 7 is known as:",opts:[{l:"A",t:"Near-White Blast Cleaning"},{l:"B",t:"Industrial Blast Cleaning"},{l:"C",t:"Brush-Off Blast Cleaning"},{l:"D",t:"Commercial Blast Cleaning"}],ans:"C",exp:""},
+{domain:"Surface Preparation",q:"Which of the following defines a \'commercially\' blast-cleaned surface?",opts:[{l:"A",t:"NACE No.3 / SSPC-SP 6"},{l:"B",t:"ISO St 2"},{l:"C",t:"ISO Sa 2½"},{l:"D",t:"NACE No.2 / SSPC-SP 10"}],ans:"A",exp:""},
+{domain:"Surface Preparation",q:"All dry abrasive blast cleaning standards prohibit which of the following from remaining on the surface?",opts:[{l:"A",t:"Surface profile"},{l:"B",t:"Tightly adherent mill scale"},{l:"C",t:"Staining"},{l:"D",t:"Loose visible contaminants"}],ans:"D",exp:""},
+{domain:"Surface Preparation",q:"Which ambient condition may increase the potential for \'rust back\' of blasted steel?",opts:[{l:"A",t:"High air and surface temperatures"},{l:"B",t:"Low wind speed"},{l:"C",t:"Dew point 3°C (5°F) below surface temperature"},{l:"D",t:"High relative humidity ≥ 85%"}],ans:"D",exp:""},
+{domain:"Surface Preparation",q:"Which option best describes the primary function(s) of surface preparation?",opts:[{l:"A",t:"To remove surface contaminants that can promote premature coating failure"},{l:"B",t:"To provide decorative texture to the surface"},{l:"C",t:"To test coating adhesion before application"},{l:"D",t:"To determine the type of coating to apply based on the surface condition"}],ans:"A",exp:""},
+{domain:"Surface Preparation",q:"Which power tool cleaning standard results in a BARE METAL appearance AND requires a minimum surface profile of 25 µm (1 mil)?",opts:[{l:"A",t:"SSPC-SP 11"},{l:"B",t:"SSPC-SP 15"},{l:"C",t:"SSPC-SP 2"},{l:"D",t:"SSPC-SP 3"}],ans:"A",exp:""},
+{domain:"Surface Preparation",q:"Which SSPC-VIS 1 rust grade defines a surface covered in mill scale and rust but WITHOUT pitting?",opts:[{l:"A",t:"Grade B"},{l:"B",t:"Grade C"},{l:"C",t:"Grade A"},{l:"D",t:"Grade D"}],ans:"A",exp:""},
+{domain:"Surface Preparation",q:"WJ-3 (Thorough Cleaning) allows tightly adherent material and staining of up to:",opts:[{l:"A",t:"50% per unit area"},{l:"B",t:"33% per unit area"},{l:"C",t:"5% per unit area"},{l:"D",t:"10% per unit area"}],ans:"B",exp:""},
+{domain:"Surface Preparation",q:"SSPC-SP 2 (Hand Tool Cleaning) results in which of the following end conditions?",opts:[{l:"A",t:"White metal appearance with no staining"},{l:"B",t:"Commercial-grade cleanliness with 33% maximum staining"},{l:"C",t:"All loose rust, mill scale, and paint removed; tightly adherent material may remain"},{l:"D",t:"Bare metal appearance with minimum 25 µm profile"}],ans:"C",exp:""},
+{domain:"Surface Preparation",q:"What property of an abrasive can help determine how quickly a surface profile is achieved?",opts:[{l:"A",t:"Color"},{l:"B",t:"Country of origin"},{l:"C",t:"Recyclability"},{l:"D",t:"Size"}],ans:"D",exp:""},
+{domain:"Surface Preparation",q:"In SSPC-VIS 1, which Rust Grade defines a surface that is ENTIRELY covered by mill scale with virtually no rust?",opts:[{l:"A",t:"Rust Grade B"},{l:"B",t:"Rust Grade D"},{l:"C",t:"Rust Grade A"},{l:"D",t:"Rust Grade C"}],ans:"C",exp:""},
+{domain:"Surface Preparation",q:"SSPC-SP 10 / NACE No.2 (Near-White) allows a maximum of how much staining per unit area?",opts:[{l:"A",t:"5% maximum"},{l:"B",t:"10% maximum"},{l:"C",t:"0% — no staining allowed"},{l:"D",t:"33% maximum"}],ans:"A",exp:""},
+{domain:"Surface Preparation",q:"SSPC-SP 1 solvent cleaning typically uses which type of cleaning method?",opts:[{l:"A",t:"Mechanical abrasion with wire brushes"},{l:"B",t:"Waterjet at high pressure"},{l:"C",t:"Steam cleaning only"},{l:"D",t:"Wiping, dipping, or spraying with solvents"}],ans:"D",exp:""},
+{domain:"Surface Preparation",q:"Which visual reference guide is used to assess the initial rust grade of steel BEFORE abrasive blasting?",opts:[{l:"A",t:"SSPC-VIS 1"},{l:"B",t:"SSPC-VIS 3"},{l:"C",t:"ISO 8502"},{l:"D",t:"SSPC-VIS 4 / NACE VIS 7"}],ans:"A",exp:""},
+{domain:"Surface Preparation",q:"NACE No.2 / SSPC-SP 10 (Near-White Blast) allows a maximum staining of:",opts:[{l:"A",t:"5% per unit area"},{l:"B",t:"0%"},{l:"C",t:"10% per unit area"},{l:"D",t:"33% per unit area"}],ans:"A",exp:""},
+{domain:"Surface Preparation",q:"How should the surface profile be defined in a well-written specification?",opts:[{l:"A",t:"As an exact target measurement"},{l:"B",t:"As a range — both minimum and maximum depth"},{l:"C",t:"Specifying only the minimum depth required"},{l:"D",t:"Specifying only the maximum depth allowed"}],ans:"B",exp:""},
+{domain:"Surface Preparation",q:"What additional assessment is ALWAYS required after waterjetting or wet abrasive blasting that is NOT required after dry blasting?",opts:[{l:"A",t:"Holiday detection"},{l:"B",t:"Surface profile measurement"},{l:"C",t:"Flash rust assessment"},{l:"D",t:"Soluble salt testing"}],ans:"C",exp:""},
+{domain:"Surface Preparation",q:"What functions can hand tools perform in the surface preparation process?",opts:[{l:"A",t:"Removing tightly adherent mill scale"},{l:"B",t:"Creating a consistent anchor profile"},{l:"C",t:"Removing loosely adherent material"},{l:"D",t:"Removing embedded soluble salts"}],ans:"C",exp:""},
+{domain:"Coatings",q:"What is the risk of applying an alkyd coating over fresh (green) concrete?",opts:[{l:"A",t:"The concrete is too smooth for adhesion"},{l:"B",t:"The coating cures too fast on concrete"},{l:"C",t:"Saponification — the alkali in concrete attacks the alkyd binder"},{l:"D",t:"The concrete absorbs too much coating"}],ans:"C",exp:""},
+{domain:"Coatings",q:"Which coating system layer is applied directly to the substrate and provides primary adhesion and corrosion protection?",opts:[{l:"A",t:"Sealer"},{l:"B",t:"Topcoat"},{l:"C",t:"Intermediate coat"},{l:"D",t:"Primer"}],ans:"D",exp:""},
+{domain:"Coatings",q:"A coating has SBV = 75% and is thinned by 20%. What is the Adjusted SBV?",opts:[{l:"A",t:"0.625"},{l:"B",t:"0.90"},{l:"C",t:"0.75"},{l:"D",t:"0.55"}],ans:"A",exp:""},
+{domain:"Coatings",q:"What is the typical acceptable chloride contamination limit commonly referenced for immersion/offshore coating systems?",opts:[{l:"A",t:"Less than 500 mg/m²"},{l:"B",t:"Less than 50–80 mg/m² (varies by spec — often 20–50 mg/m² for severe service)"},{l:"C",t:"Zero — no chlorides whatsoever are acceptable"},{l:"D",t:"Less than 200 mg/m²"}],ans:"B",exp:""},
+{domain:"Coatings",q:"Polyurea coatings are characterized by which of the following properties?",opts:[{l:"A",t:"Water-based, low VOC, brush-applied"},{l:"B",t:"Fast-reacting plural component system, applied with heated airless equipment"},{l:"C",t:"Alkyd-based, air-drying by oxidation"},{l:"D",t:"Very slow cure, single-component system"}],ans:"B",exp:""},
+{domain:"Coatings",q:"Alkyds are NOT recommended for application over which type of surface?",opts:[{l:"A",t:"Rusted steel with tightly adherent rust"},{l:"B",t:"Alkaline surfaces such as concrete or galvanized steel"},{l:"C",t:"Clean blast-cleaned steel"},{l:"D",t:"Previously primed steel"}],ans:"B",exp:""},
+{domain:"Coatings",q:"What is the difference between 'drying' and 'curing' of a coating?",opts:[{l:"A",t:"Curing only applies to single-component coatings"},{l:"B",t:"Drying and curing are the same process with different names"},{l:"C",t:"Drying = loss of solvent making the film touch-dry; curing = full development of film properties, often by chemical reaction"},{l:"D",t:"Drying applies only to waterborne coatings; curing applies only to solvent-based"}],ans:"C",exp:""},
+{domain:"Coatings",q:"Polysiloxane topcoats are known for which combination of properties?",opts:[{l:"A",t:"Primarily for immersion service and cathodic protection"},{l:"B",t:"Used only as a primer over inorganic zinc"},{l:"C",t:"Excellent gloss retention AND chemical resistance in a single-coat system"},{l:"D",t:"High flexibility and fast dry time at low temperatures"}],ans:"C",exp:""},
+{domain:"Coatings",q:"Which curing mechanism applies to thermal spray coatings (e.g. Thermal Spray Aluminum — TSA)?",opts:[{l:"A",t:"Co-reaction"},{l:"B",t:"Solvent evaporation"},{l:"C",t:"Coalescence of molten metal droplets solidifying on the substrate"},{l:"D",t:"Oxidation"}],ans:"C",exp:""},
+{domain:"Coatings",q:"When using a wet film thickness comb gauge, the film thickness is reported as:",opts:[{l:"A",t:"The last tooth that has no coating on it"},{l:"B",t:"The average of all teeth readings"},{l:"C",t:"The first tooth that has coating on it"},{l:"D",t:"Between the last tooth with coating and the first tooth without coating"}],ans:"D",exp:""},
+{domain:"Coatings",q:"A wet film thickness (WFT) gauge should be read at which point after insertion?",opts:[{l:"A",t:"The last dry tooth and first wet tooth"},{l:"B",t:"After 30 seconds of contact"},{l:"C",t:"After the coating has dried"},{l:"D",t:"Immediately after removing from the wet film"}],ans:"D",exp:""},
+{domain:"Coatings",q:"A coating has a Solids by Volume (SBV) of 40%. The specified DFT is 80 µm. What is the required WFT?",opts:[{l:"A",t:"200 µm"},{l:"B",t:"120 µm"},{l:"C",t:"40 µm"},{l:"D",t:"32 µm"}],ans:"A",exp:""},
+{domain:"Coatings",q:"Practical coverage has been calculated at 3.5 m²/L. The area to be coated is 420 m². How many litres of paint are required?",opts:[{l:"A",t:"120 litres"},{l:"B",t:"84 litres"},{l:"C",t:"1,470 litres"},{l:"D",t:"416.5 litres"}],ans:"A",exp:""},
+{domain:"Coatings",q:"Which curing mechanism involves reaction with oxygen in the air to form a hard film?",opts:[{l:"A",t:"Co-reaction"},{l:"B",t:"Coalescence"},{l:"C",t:"Polymerization"},{l:"D",t:"Oxidation"}],ans:"D",exp:""},
+{domain:"Coatings",q:"Zinc-rich primers are classified as which type of protective coating?",opts:[{l:"A",t:"Inhibitive"},{l:"B",t:"Sacrificial"},{l:"C",t:"Convertible"},{l:"D",t:"Barrier"}],ans:"B",exp:""},
+{domain:"Coatings",q:"Two-component epoxy coatings cure by which mechanism?",opts:[{l:"A",t:"Solvent evaporation only"},{l:"B",t:"Co-reaction between Part A (epoxy resin) and Part B (amine or polyamide hardener)"},{l:"C",t:"Oxidation with atmospheric oxygen"},{l:"D",t:"Coalescence of polymer particles"}],ans:"B",exp:""},
+{domain:"Coatings",q:"What will happen to the pot life if a two-component coating is mixed in an environment with higher temperature?",opts:[{l:"A",t:"Pot life will increase"},{l:"B",t:"Pot life will decrease"},{l:"C",t:"Pot life will remain unchanged"},{l:"D",t:"Pot life becomes unlimited"}],ans:"B",exp:""},
+{domain:"Coatings",q:"A coating has SBV = 55% and must be applied at a DFT of 110 µm. What is the theoretical coverage in m²/L?",opts:[{l:"A",t:"55 m²/L"},{l:"B",t:"0.5 m²/L"},{l:"C",t:"5 m²/L"},{l:"D",t:"200 m²/L"}],ans:"C",exp:""},
+{domain:"Coatings",q:"An inhibitive primer works by which mechanism?",opts:[{l:"A",t:"Physical barrier preventing moisture reaching the steel"},{l:"B",t:"Providing a sacrificial metal more anodic than steel"},{l:"C",t:"Absorbing UV radiation before it reaches the substrate"},{l:"D",t:"Releasing passivating pigments that chemically slow the corrosion reaction at the steel surface"}],ans:"D",exp:""},
+{domain:"Coatings",q:"Which of the following is one of the most common causes of blisters in a coating system?",opts:[{l:"A",t:"Applying coating in cold weather"},{l:"B",t:"Too thin a coating"},{l:"C",t:"Soluble salt contamination under the coating film"},{l:"D",t:"Excessive surface profile"}],ans:"C",exp:""},
+{domain:"Inspection Process",q:"If an inspector makes an error in a report, what is the correct course of action?",opts:[{l:"A",t:"Ask the contractor to correct it on their behalf"},{l:"B",t:"Ignore the error if it does not affect the outcome"},{l:"C",t:"Issue a correction or addendum clearly identifying the error, the correction, and the date"},{l:"D",t:"Shred the original report and issue a clean replacement without mentioning the error"}],ans:"C",exp:""},
+{domain:"Inspection Process",q:"When using the Bresle patch method, the extracted solution is typically analyzed by which instrument?",opts:[{l:"A",t:"Conductivity meter or titration tubes"},{l:"B",t:"Surface profile comparator"},{l:"C",t:"Sling psychrometer"},{l:"D",t:"Digital DFT gauge"}],ans:"A",exp:""},
+{domain:"Inspection Process",q:"What type of water MUST be used as the extraction fluid in the Bresle patch test?",opts:[{l:"A",t:"Any clean water available on site"},{l:"B",t:"Deionized, distilled, or demineralized water (or manufacturer's approved solution)"},{l:"C",t:"Tap water"},{l:"D",t:"Sea water"}],ans:"B",exp:""},
+{domain:"Inspection Process",q:"Which of the following is an advantage of using a magnetic pull-off gauge for DFT measurement?",opts:[{l:"A",t:"It is more accurate than all digital gauges"},{l:"B",t:"It measures both magnetic and non-magnetic substrates"},{l:"C",t:"It is intrinsically safe for use in hazardous areas"},{l:"D",t:"It can store readings electronically"}],ans:"C",exp:""},
+{domain:"Inspection Process",q:"Conductivity meter results are expressed in which unit?",opts:[{l:"A",t:"µS/cm (microsiemens per centimetre)"},{l:"B",t:"ppm"},{l:"C",t:"µg/cm²"},{l:"D",t:"mg/m²"}],ans:"A",exp:""},
+{domain:"Inspection Process",q:"Adhesion testing of a coating is typically performed to verify which of the following?",opts:[{l:"A",t:"The solvent evaporation rate"},{l:"B",t:"The bond strength between the coating and the substrate"},{l:"C",t:"The film thickness across the surface"},{l:"D",t:"The color accuracy of the topcoat"}],ans:"B",exp:""},
+{domain:"Inspection Process",q:"Why are soluble salts particularly damaging under a coating film?",opts:[{l:"A",t:"They react chemically with the coating binder and dissolve it"},{l:"B",t:"They outgas and cause pinholes during application"},{l:"C",t:"They are hygroscopic — they attract moisture through the coating film, increasing electrolyte conductivity and causing osmotic blistering"},{l:"D",t:"They prevent the coating from adhering mechanically to the blast profile"}],ans:"C",exp:""},
+{domain:"Inspection Process",q:"ISO 19840 requires a TWO-POINT verification of a Type II (electronic) DFT gauge using:",opts:[{l:"A",t:"The mid-range coated standard only"},{l:"B",t:"Reference coated standards BELOW and ABOVE the anticipated coating thickness"},{l:"C",t:"Two readings on uncoated blast-cleaned steel"},{l:"D",t:"Any two standard thicknesses convenient for the inspector"}],ans:"B",exp:""},
+{domain:"Inspection Process",q:"Soluble salts testing should be performed at which stage(s) of the coating project?",opts:[{l:"A",t:"Only when the client requests it"},{l:"B",t:"Only before abrasive blasting"},{l:"C",t:"Only after abrasive blasting, before coating"},{l:"D",t:"Before and/or after surface preparation, as specified"}],ans:"D",exp:""},
+{domain:"Inspection Process",q:"Why is it NOT acceptable to mix PA 2 logic and ISO 19840 logic on the same project?",opts:[{l:"A",t:"Mixing is allowed if agreed upon by the inspector and contractor"},{l:"B",t:"They use different units of measurement"},{l:"C",t:"PA 2 is for new construction; ISO 19840 is for maintenance"},{l:"D",t:"The two frameworks have different acceptance criteria — combining them produces inconsistent, unreliable results"}],ans:"D",exp:""},
+{domain:"Inspection Process",q:"Which type of soluble salt is of PRIMARY concern on steel substrates in coating inspection?",opts:[{l:"A",t:"Nitrates"},{l:"B",t:"Carbonates"},{l:"C",t:"Sulfates"},{l:"D",t:"Chlorides"}],ans:"D",exp:""},
+{domain:"Inspection Process",q:"Which of the following is a DFT gauge verification step that is SPECIFICALLY required by SSPC-PA 2 but NOT explicitly defined the same way in ISO 19840?",opts:[{l:"A",t:"Two-point calibration using coated reference standards"},{l:"B",t:"Base Metal Reading (BMR) procedure on the blast-cleaned substrate"},{l:"C",t:"Recording all readings in a measurement log"},{l:"D",t:"Verifying gauge battery life before measurement"}],ans:"B",exp:""},
+{domain:"Inspection Process",q:"Which surface preparation method can REMOVE soluble salts from a steel surface?",opts:[{l:"A",t:"Dry abrasive blasting alone"},{l:"B",t:"Fresh water pressure washing or waterjetting"},{l:"C",t:"Hand tool cleaning"},{l:"D",t:"Solvent cleaning (SSPC-SP 1)"}],ans:"B",exp:""},
+{domain:"Inspection Process",q:"Which statement BEST summarizes why coating inspectors must know both SSPC-PA 2 and ISO 19840?",opts:[{l:"A",t:"Because PA 2 is for DFT and ISO 19840 is for surface profile"},{l:"B",t:"Because one is used for primer and the other for topcoat"},{l:"C",t:"Because different project specifications reference different standards, and applying the wrong framework produces invalid measurements"},{l:"D",t:"Because ISO 19840 is replacing PA 2 globally and inspectors need to transition"}],ans:"C",exp:""},
+{domain:"Inspection Process",q:"An inspector finds a DFT reading that EXCEEDS the specified maximum DFT. Under SSPC-PA 2 (Level 3), this reading would be flagged if:",opts:[{l:"A",t:"Any over-thickness reading is automatically a failure regardless of level"},{l:"B",t:"The spot average exceeds 120% of MDFT"},{l:"C",t:"It exceeds 120% of the specified minimum DFT"},{l:"D",t:"It exceeds 150% of the specified minimum DFT"}],ans:"C",exp:""},
+{domain:"Standards & Specs",q:"Which standard covers the Bresle patch extraction method?",opts:[{l:"A",t:"ISO 8502-6"},{l:"B",t:"ISO 8502-9"},{l:"C",t:"SSPC-SP 1"},{l:"D",t:"ISO 8502-3"}],ans:"A",exp:""},
+{domain:"Standards & Specs",q:"Which of the following correctly states the minimum surface temperature requirement found in most coating manufacturer specifications?",opts:[{l:"A",t:"Surface temperature must be at least 3°C (5°F) above dew point"},{l:"B",t:"Surface temperature must be below 40°C (104°F)"},{l:"C",t:"Surface temperature must equal air temperature"},{l:"D",t:"Surface temperature must be above 0°C (32°F)"}],ans:"A",exp:""},
+{domain:"Standards & Specs",q:"Per ISO 8502-6, how many times must the injection/extraction cycle be repeated (inject back and draw out) before taking the final sample?",opts:[{l:"A",t:"A minimum of 4 times"},{l:"B",t:"1 time"},{l:"C",t:"10 times"},{l:"D",t:"2 times"}],ans:"A",exp:""},
+{domain:"Standards & Specs",q:"According to the AMPP Inspector Code of Conduct checklist, what must an inspector do with known conflicts of interest?",opts:[{l:"A",t:"Only disclose if asked by the client"},{l:"B",t:"Report them immediately"},{l:"C",t:"Handle them privately without disclosure"},{l:"D",t:"Continue working — conflicts are part of the job"}],ans:"B",exp:""},
+{domain:"Standards & Specs",q:"Which document takes precedence on a coating project when a conflict exists?",opts:[{l:"A",t:"The inspector's judgment"},{l:"B",t:"The industry standard referenced in the spec"},{l:"C",t:"The project specification"},{l:"D",t:"The coating manufacturer's Product Data Sheet"}],ans:"C",exp:""},
+{domain:"Standards & Specs",q:"The standard conductivity calibration solution commonly used to verify a conductivity meter has a conductivity of:",opts:[{l:"A",t:"5000 µS/cm"},{l:"B",t:"1413 µS/cm"},{l:"C",t:"500 µS/cm"},{l:"D",t:"100 µS/cm"}],ans:"B",exp:""},
+{domain:"Standards & Specs",q:"The visual reference guide used to assess hand and power tool cleaning results is:",opts:[{l:"A",t:"SSPC-VIS 4"},{l:"B",t:"SSPC-VIS 3"},{l:"C",t:"ISO 8501-1"},{l:"D",t:"SSPC-VIS 1"}],ans:"B",exp:""},
+{domain:"Standards & Specs",q:"When a conflict occurs on a coatings project, the inspector's first course of action should be to:",opts:[{l:"A",t:"Halt all work immediately"},{l:"B",t:"Document the conflict and notify the appropriate person per the spec"},{l:"C",t:"Make a decision and proceed"},{l:"D",t:"Notify the contractor to stop and await direction"}],ans:"B",exp:""},
+{domain:"Standards & Specs",q:"ISO Sa 1 (Light Blast Cleaning) is most similar in cleanliness level to which SSPC/NACE standard?",opts:[{l:"A",t:"NACE No.4 / SSPC-SP 7"},{l:"B",t:"NACE No.8 / SSPC-SP 14"},{l:"C",t:"NACE No.3 / SSPC-SP 6"},{l:"D",t:"NACE No.1 / SSPC-SP 5"}],ans:"A",exp:""},
+{domain:"Standards & Specs",q:"The AMPP Terms of Service document states that failure to comply with the Code of Professional Conduct constitutes unprofessional conduct, which can result in:",opts:[{l:"A",t:"Reprimand, suspension, revocation, or denial of initial certification or recertification — for a specified period or lifetime"},{l:"B",t:"Automatic disqualification from all future AMPP exams"},{l:"C",t:"A mandatory re-examination within 30 days"},{l:"D",t:"A written warning only"}],ans:"A",exp:""},
+{domain:"Documentation",q:"The Safety Data Sheet (SDS) provides which information?",opts:[{l:"A",t:"Coating color codes and gloss levels"},{l:"B",t:"Quality control test methods for the coating"},{l:"C",t:"Surface preparation requirements and DFT specifications"},{l:"D",t:"Hazard identification, handling, storage, first aid, PPE requirements, disposal"}],ans:"D",exp:""},
+{domain:"Documentation",q:"A Non-Conformance Report (NCR) is issued when:",opts:[{l:"A",t:"Work or materials do not meet the specified requirements"},{l:"B",t:"The inspector wants to request additional materials"},{l:"C",t:"Environmental conditions are within acceptable range"},{l:"D",t:"The project is ahead of schedule"}],ans:"A",exp:""},
+{domain:"Documentation",q:"Which of the following pieces of information is LEAST likely to appear in a daily field inspection report?",opts:[{l:"A",t:"Batch numbers and expiry dates of materials used"},{l:"B",t:"The contractor's invoiced cost for the day's work"},{l:"C",t:"Surface preparation standard achieved and cleanliness grade"},{l:"D",t:"Ambient conditions at time of coating application"}],ans:"B",exp:"Daily inspection reports capture technical and quality data — ambient conditions, material traceability, surface prep results. Cost and invoicing are commercial documents, not part of the inspector's field record."},
+{domain:"Documentation",q:"The ITB (Invitation to Bid) and contract documents are examples of which type of document?",opts:[{l:"A",t:"Manufacturer's documentation"},{l:"B",t:"Industry Standards"},{l:"C",t:"Project-specific documentation"},{l:"D",t:"Government regulations"}],ans:"C",exp:""},
+{domain:"Documentation",q:"When should an inspector document non-conformances?",opts:[{l:"A",t:"Only at the end of the project in the final report"},{l:"B",t:"Only when the owner specifically requests documentation"},{l:"C",t:"Immediately when discovered — in real time, not from memory later"},{l:"D",t:"Only if the non-conformance is not corrected within 24 hours"}],ans:"C",exp:""},
+{domain:"Documentation",q:"An inspector discovers a non-conformance but the contractor pressures them to approve the work anyway to avoid delays. The inspector should:",opts:[{l:"A",t:"Approve the work to maintain good relations with the contractor"},{l:"B",t:"Ask the coating manufacturer for permission to deviate"},{l:"C",t:"Approve conditionally and note it privately"},{l:"D",t:"Document the non-conformance, report it per the specification's escalation process, and NOT approve non-conforming work"}],ans:"D",exp:""},
+{domain:"Application Methods",q:"Airless spray operates on which principle?",opts:[{l:"A",t:"Two components mixed at a heated spray gun"},{l:"B",t:"Compressed air mixed with coating at the spray tip"},{l:"C",t:"High-pressure fluid pump forces coating through a small orifice tip, atomizing by hydraulic pressure"},{l:"D",t:"Low pressure, high volume air carries coating droplets to the surface"}],ans:"C",exp:""},
+{domain:"Application Methods",q:"Conventional air spray atomizes coating by which method?",opts:[{l:"A",t:"High fluid pressure forcing coating through a small orifice"},{l:"B",t:"Mixing compressed air with the fluid stream at the air cap to atomize"},{l:"C",t:"Centrifugal force from a spinning disc"},{l:"D",t:"Mixing coating with high-volume, low-pressure air at the spray cap"}],ans:"B",exp:""},
+{domain:"Application Methods",q:"What is the recommended technique for spray application when approaching an edge or corner?",opts:[{l:"A",t:"Trigger the gun before and after the edge to avoid excessive build"},{l:"B",t:"Aim directly at the edge and increase pressure to ensure penetration"},{l:"C",t:"Apply a stripe coat by brush FIRST, then overcoat with spray"},{l:"D",t:"Skip edges — apply only on flat surfaces"}],ans:"C",exp:""},
+{domain:"Application Methods",q:"Wind speed affects coating application in which of the following ways?",opts:[{l:"A",t:"High wind speeds can cause excessive overspray drift, dry spray, and accelerated solvent loss"},{l:"B",t:"High wind speeds have no effect on application quality"},{l:"C",t:"High wind speeds improve atomization quality"},{l:"D",t:"Wind speed only matters for brush application"}],ans:"A",exp:""},
+{domain:"Application Methods",q:"What is 'transfer efficiency' in coating application?",opts:[{l:"A",t:"The speed at which a coating transfers from wet to dry"},{l:"B",t:"The number of coats applied per day"},{l:"C",t:"The ratio of DFT to WFT"},{l:"D",t:"The percentage of coating material that actually reaches and adheres to the surface"}],ans:"D",exp:""},
+{domain:"Application Methods",q:"How should rough welds be treated prior to coating application?",opts:[{l:"A",t:"Coated as-is with extra primer"},{l:"B",t:"Ground smooth (if approved by the specifier)"},{l:"C",t:"Smoothed with sandpaper only"},{l:"D",t:"Prepared only with solvents"}],ans:"B",exp:""},
+{domain:"Application Methods",q:"Which coating application method provides the HIGHEST production rate for large surface areas?",opts:[{l:"A",t:"Brush"},{l:"B",t:"HVLP spray"},{l:"C",t:"Airless spray"},{l:"D",t:"Conventional air spray"}],ans:"C",exp:""},
+{domain:"Application Methods",q:"'Dry spray' is a coating defect most commonly associated with which condition?",opts:[{l:"A",t:"Too much thinner added to the coating"},{l:"B",t:"High wind speed or high temperature causing solvent to evaporate before droplets reach the surface"},{l:"C",t:"Incorrect mixing ratio of two-component coating"},{l:"D",t:"Spray gun too close to the surface"}],ans:"B",exp:""},
+{domain:"Environmental Conditions",q:"What happens to pot life when ambient temperature INCREASES?",opts:[{l:"A",t:"Pot life is unaffected by temperature"},{l:"B",t:"Pot life doubles for every 10°C increase"},{l:"C",t:"Pot life increases — the coating stays workable longer"},{l:"D",t:"Pot life decreases — chemical reaction accelerates with heat"}],ans:"D",exp:""},
+{domain:"Environmental Conditions",q:"Which instrument can directly display dew point temperature without requiring psychrometric charts?",opts:[{l:"A",t:"Sling psychrometer"},{l:"B",t:"Electronic digital hygrometer / dew point meter"},{l:"C",t:"Bresle patch"},{l:"D",t:"Surface contact thermometer"}],ans:"B",exp:""},
+{domain:"Environmental Conditions",q:"Most coating manufacturer specifications require surface temperature to be at least how many degrees above dew point?",opts:[{l:"A",t:"1°C (2°F)"},{l:"B",t:"5°C (9°F)"},{l:"C",t:"2°C (4°F)"},{l:"D",t:"3°C (5°F)"}],ans:"D",exp:""},
+{domain:"Environmental Conditions",q:"Relative humidity (RH) is defined as:",opts:[{l:"A",t:"The difference between wet-bulb and dry-bulb temperature"},{l:"B",t:"The actual amount of water vapor in the air expressed in grams per cubic meter"},{l:"C",t:"The temperature at which condensation occurs"},{l:"D",t:"The ratio of actual water vapor present to the maximum possible at that temperature, expressed as a percentage"}],ans:"D",exp:""},
+{domain:"Environmental Conditions",q:"The contractor's sling psychrometer gives a different reading than your digital dew point meter. As inspector, what would you do FIRST?",opts:[{l:"A",t:"Accept the digital dew point meter reading automatically"},{l:"B",t:"Verify calibration of both instruments"},{l:"C",t:"Shut down the work immediately"},{l:"D",t:"Accept the sling psychrometer reading automatically"}],ans:"B",exp:""},
+{domain:"Corrosion",q:"Which service environment presents the HIGHEST corrosion risk for unprotected steel?",opts:[{l:"A",t:"Controlled indoor environment"},{l:"B",t:"Rural inland atmosphere"},{l:"C",t:"Desert environment with low humidity"},{l:"D",t:"Marine/offshore environment with high humidity and chloride salts"}],ans:"D",exp:""},
+{domain:"Corrosion",q:"Microbiologically Influenced Corrosion (MIC) is caused by:",opts:[{l:"A",t:"UV radiation degrading the coating and exposing bare steel"},{l:"B",t:"High-velocity fluids eroding the surface"},{l:"C",t:"Microorganisms (bacteria, fungi) producing acids or other corrosive byproducts that accelerate or cause corrosion"},{l:"D",t:"Excessive surface profile on blast-cleaned steel"}],ans:"C",exp:""},
+{domain:"Corrosion",q:"Erosion corrosion is caused by:",opts:[{l:"A",t:"Two dissimilar metals in contact"},{l:"B",t:"The combined action of corrosion and mechanical wear from a flowing fluid or abrasive particles"},{l:"C",t:"Uniform attack by a highly acidic environment"},{l:"D",t:"Bacteria producing corrosive metabolic byproducts"}],ans:"B",exp:""},
+{domain:"Corrosion",q:"Which type of corrosion occurs uniformly across the entire metal surface, with anodic and cathodic sites constantly moving?",opts:[{l:"A",t:"General (uniform) corrosion"},{l:"B",t:"Galvanic corrosion"},{l:"C",t:"Localized corrosion (pitting)"},{l:"D",t:"Crevice corrosion"}],ans:"A",exp:""},
+{domain:"Corrosion",q:"At the ANODE of a corrosion cell, what occurs?",opts:[{l:"A",t:"Reduction — the metal gains electrons"},{l:"B",t:"Electrons flow from cathode to anode through the electrolyte"},{l:"C",t:"Oxidation — the metal loses electrons and corrodes"},{l:"D",t:"The metal is protected from corrosion"}],ans:"C",exp:""},
+{domain:"Safety",q:"Before entering a confined space on a coating project, an inspector should verify:",opts:[{l:"A",t:"Proper atmospheric testing, ventilation, and permit-to-work requirements"},{l:"B",t:"That the contractor has signed the permit"},{l:"C",t:"That the coating is dry"},{l:"D",t:"That the PPE is the correct color"}],ans:"A",exp:""},
+{domain:"Teamwork",q:"During a coating project, the applicator informs the inspector that the specified surface preparation standard cannot be achieved in certain confined areas due to equipment access limitations. The inspector's FIRST step should be to:",opts:[{l:"A",t:"Approve a lower surface preparation standard immediately to keep the project on schedule"},{l:"B",t:"Document the limitation and escalate to the appropriate party per the project chain of command for a formal disposition"},{l:"C",t:"Allow the applicator to use whatever method is feasible and make no record of the deviation"},{l:"D",t:"Stop all work on the entire project until the access issue is resolved"}],ans:"B",exp:"The inspector's role is not to unilaterally approve deviations from the specification. Access limitations must be documented and referred up the chain of command — typically to the owner's representative or engineer — for a formal decision. Unilateral approval or ignoring the deviation are both outside the inspector's authority."},
+{domain:"Ethics",q:"According to the AMPP Terms of Service (Term 1), who is exclusively responsible for the security of the candidate's My Certification Portal account credentials?",opts:[{l:"A",t:"The testing centre administrator"},{l:"B",t:"The candidate's employer"},{l:"C",t:"AMPP's IT department"},{l:"D",t:"The candidate themselves"}],ans:"D",exp:""},
+{domain:"Ethics",q:"According to the CIP attestation, when is it acceptable for a QA inspector to accept a gift?",opts:[{l:"A",t:"When the value is under $25.00"},{l:"B",t:"It's never acceptable"},{l:"C",t:"If your company policy allows gifts"},{l:"D",t:"After the job is complete"}],ans:"B",exp:""},
+{domain:"Safety",q:"A coating inspector notices that abrasive blasting is being carried out without the operatives wearing supplied-air respirators. The correct action is to:",opts:[{l:"A",t:"Continue with other inspection duties and mention it to the contractor at end of day"},{l:"B",t:"Immediately notify the site supervisor and stop blasting until appropriate PPE is in use"},{l:"C",t:"Ignore it — respiratory protection is the contractor's responsibility, not the inspector's"},{l:"D",t:"Document the observation in the daily report and raise it at the next site meeting"}],ans:"B",exp:"Abrasive blasting generates fine particulates and potential silica dust — both serious respiratory hazards. This is an immediate safety stop situation. While the inspector is not a safety officer, any person on site has a duty to raise immediate safety risks. Delayed reporting is not acceptable for an active hazard."},
+{domain:"Safety",q:"When reviewing a Safety Data Sheet, Section 8 typically covers which information?",opts:[{l:"A",t:"First aid measures"},{l:"B",t:"Exposure controls and personal protective equipment"},{l:"C",t:"Physical and chemical properties"},{l:"D",t:"Fire-fighting measures"}],ans:"B",exp:"SDS Section 8 covers exposure controls and PPE — the specific types of respiratory protection, gloves, eye protection, and skin protection required when handling the product. This is one of the most practically important sections for coating site personnel."},
+{domain:"Teamwork",q:"Effective communication between a coating inspector and the applicator crew is best achieved by:",opts:[{l:"A",t:"Communicating observations clearly and promptly, distinguishing between mandatory holds and advisory comments, and maintaining a professional tone"},{l:"B",t:"Issuing written NCRs for every minor observation regardless of severity"},{l:"C",t:"Only communicating at the end of each working day in a formal meeting"},{l:"D",t:"Avoiding direct communication with the applicator crew and routing all feedback through management"}],ans:"A",exp:"Clear, timely, and proportionate communication prevents misunderstandings and keeps work moving. Distinguishing between what is a mandatory hold versus an advisory observation is critical — treating everything as equally urgent creates friction and erodes the inspector's credibility."},
+{domain:"Documentation",q:"A project specification requires coating batch numbers to be recorded. The inspector notices the applicator has not been recording them. The CORRECT action is:",opts:[{l:"A",t:"Inform the contractor verbally and record the conversation in your personal notes only"},{l:"B",t:"Issue a non-conformance and require the contractor to implement proper batch recording immediately"},{l:"C",t:"Record the batch numbers yourself by checking the product cans on site"},{l:"D",t:"Ignore it — batch recording is the manufacturer's responsibility"}],ans:"B",exp:"Batch number recording is a specified requirement. Failure to comply is a non-conformance. A formal NCR ensures the contractor corrects the practice immediately and creates a documented record. Verbal-only notification is insufficient for a specification requirement."},
+{domain:"Documentation",q:"Final coating inspection documentation submitted to the owner typically includes which of the following?",opts:[{l:"A",t:"Only the inspector's final sign-off letter"},{l:"B",t:"Only the DFT records for the topcoat"},{l:"C",t:"The contractor's invoice and payment records"},{l:"D",t:"Daily inspection reports, surface preparation records, DFT records, holiday detection results, material traceability records, and NCR dispositions"}],ans:"D",exp:"Final documentation is the complete quality record of the project — it must cover every stage from surface preparation through final inspection, with full material traceability and resolution of all non-conformances. Partial records (DFT only, or sign-off letter only) do not constitute a complete handover package."}
+];
+
+// Shuffle questions
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+const QUESTIONS = shuffleArray(EXAM_Q);
+const TOTAL = QUESTIONS.length;
+const answers = {};   // index -> letter
+const flags = new Set();
+const notes = {};     // index -> string
+const noteVisible = new Set();
+let currentQ = 0;
+
+// TIMER: 160 minutes
+let timeLeft = 160 * 60;
+let timerInterval = null;
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) { clearInterval(timerInterval); showReview(); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const h = Math.floor(timeLeft / 3600);
+  const m = Math.floor((timeLeft % 3600) / 60);
+  const s = timeLeft % 60;
+  const display = document.getElementById('timer-display');
+  const str = h > 0
+    ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+    : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  display.textContent = str;
+  display.className = timeLeft < 300 ? 'critical' : timeLeft < 1200 ? 'warning' : '';
+}
+
+function buildQNav() {
+  const nav = document.getElementById('q-nav');
+  nav.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-dot' + (i === currentQ ? ' current' : '') +
+      (answers[i] !== undefined ? ' answered' : '') +
+      (flags.has(i) ? ' flagged' : '');
+    btn.textContent = i+1;
+    btn.onclick = () => goTo(i);
+    nav.appendChild(btn);
+  });
+}
+
+function renderQuestion(i) {
+  const area = document.getElementById('quiz-area');
+  document.getElementById('review-panel').classList.remove('show');
+  document.getElementById('score-panel').classList.remove('show');
+  area.style.display = '';
+
+  const q = QUESTIONS[i];
+  const chosen = answers[i];
+  const isFlagged = flags.has(i);
+  const noteVis = noteVisible.has(i);
+
+  let html = `<div class="q-card active" id="qcard">
+    <div class="q-meta">
+      <span class="q-domain">${q.domain.toUpperCase()}</span>
+      <span class="q-num">Q ${i+1} / ${TOTAL}</span>
+    </div>
+    <div class="q-text">${q.q}</div>
+    <div class="q-actions">
+      <button class="btn-flag ${isFlagged?'flagged':''}" onclick="toggleFlag(${i})">
+        ${isFlagged ? '🚩 Flagged' : '🏳 Flag for review'}
+      </button>
+      <button class="btn-note" onclick="toggleNote(${i})">📝 Note</button>
+    </div>
+    ${noteVis ? `<textarea class="note-field" id="note-${i}" placeholder="Your note for this question..." onchange="saveNote(${i}, this.value)">${notes[i]||''}</textarea>` : ''}
+    <div class="options">`;
+
+  q.opts.forEach(opt => {
+    const sel = chosen === opt.l ? ' selected' : '';
+    html += `<div class="opt${sel}" onclick="choose(${i},'${opt.l}')">
+      <div class="opt-letter">${opt.l}</div>
+      <div class="opt-text">${opt.t}</div>
+    </div>`;
+  });
+
+  html += '</div></div>';
+  area.innerHTML = html;
+  updateMeta();
+  buildQNav();
+  updateNavBtns();
+}
+
+function goTo(i) {
+  if (i < 0 || i >= TOTAL) return;
+  currentQ = i;
+  renderQuestion(i);
+  window.scrollTo(0,0);
+}
+
+function choose(i, letter) {
+  answers[i] = letter;
+  renderQuestion(i);
+}
+
+function toggleFlag(i) {
+  if (flags.has(i)) flags.delete(i); else flags.add(i);
+  renderQuestion(i);
+}
+
+function toggleNote(i) {
+  if (noteVisible.has(i)) noteVisible.delete(i); else noteVisible.add(i);
+  renderQuestion(i);
+}
+
+function saveNote(i, val) { notes[i] = val; }
+
+function updateNavBtns() {
+  document.getElementById('btn-prev').disabled = currentQ === 0;
+  document.getElementById('btn-next').disabled = currentQ === TOTAL-1;
+  document.getElementById('nav-status').textContent = `Q ${currentQ+1} / ${TOTAL}`;
+}
+
+function updateMeta() {
+  const done = Object.keys(answers).length;
+  document.getElementById('hdr-done').textContent = done;
+  document.getElementById('flagged-count').textContent = `🚩 ${flags.size} flagged`;
+  document.getElementById('progress-bar').style.width = (done/TOTAL*100)+'%';
+}
+
+function showReview() {
+  if (timerInterval) clearInterval(timerInterval);
+  document.getElementById('quiz-area').style.display = 'none';
+  document.getElementById('score-panel').classList.remove('show');
+  const panel = document.getElementById('review-panel');
+  const done = Object.keys(answers).length;
+  const unanswered = TOTAL - done;
+
+  let html = `<div style="background:var(--white);border:1px solid var(--border);border-radius:8px;padding:28px 32px;margin-bottom:20px;">
+    <h2 style="font-size:1.1rem;margin-bottom:8px;">Review your answers</h2>
+    <p style="color:var(--muted);font-size:0.875rem;margin-bottom:20px;">
+      ${done} answered · ${unanswered} unanswered · ${flags.size} flagged. Click any question to return to it.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+      <button onclick="filterReview('all')" style="font-family:var(--mono);font-size:0.68rem;padding:6px 14px;border-radius:3px;border:1px solid var(--border);background:var(--navy);color:#fff;cursor:pointer;">ALL (${TOTAL})</button>
+      <button onclick="filterReview('flagged')" style="font-family:var(--mono);font-size:0.68rem;padding:6px 14px;border-radius:3px;border:1px solid var(--amber);background:#fff3cd;color:var(--amber);cursor:pointer;">FLAGGED (${flags.size})</button>
+      <button onclick="filterReview('unanswered')" style="font-family:var(--mono);font-size:0.68rem;padding:6px 14px;border-radius:3px;border:1px solid var(--red);background:#fde8e5;color:var(--red);cursor:pointer;">UNANSWERED (${unanswered})</button>
+    </div>
+  </div>`;
+
+  QUESTIONS.forEach((q, i) => {
+    const isAnswered = answers[i] !== undefined;
+    const isFlagged = flags.has(i);
+    let status = isAnswered ? 'ANSWERED' : 'UNANSWERED';
+    let statusClass = isAnswered ? 'rc-answered' : 'rc-unanswered';
+    if (isFlagged) { status = '🚩 FLAGGED'; statusClass = 'rc-flagged'; }
+    html += `<div class="review-card" data-answered="${isAnswered}" data-flagged="${isFlagged}" onclick="goTo(${i})">
+      <div class="rc-num">${i+1}</div>
+      <div class="rc-text">${q.q.slice(0,90)}${q.q.length>90?'…':''}</div>
+      <div class="rc-status ${statusClass}">${status}</div>
+    </div>`;
+  });
+
+  html += `<div style="text-align:center;margin-top:32px;padding:24px;background:var(--white);border:1px solid var(--border);border-radius:8px;">
+    <p style="color:var(--muted);font-size:0.875rem;margin-bottom:20px;">Ready to submit? Your score will be revealed after submission.</p>
+    <button onclick="submitExam()" style="background:var(--green);color:#fff;border:none;padding:14px 40px;border-radius:5px;font-size:1rem;font-weight:600;cursor:pointer;font-family:var(--sans);">Submit Exam →</button>
+  </div>`;
+
+  panel.innerHTML = html;
+  panel.classList.add('show');
+  window.scrollTo(0,0);
+
+  // Update bottom nav for review mode
+  document.getElementById('bottom-nav').innerHTML = `
+    <button class="nav-btn btn-prev" onclick="goTo(currentQ)">← Back to Questions</button>
+    <div id="nav-status">REVIEW MODE</div>
+    <button class="nav-btn btn-submit" onclick="submitExam()">Submit Exam →</button>`;
+}
+
+function filterReview(type) {
+  document.querySelectorAll('.review-card').forEach(card => {
+    const answered = card.dataset.answered === 'true';
+    const flagged = card.dataset.flagged === 'true';
+    if (type === 'all') card.style.display = '';
+    else if (type === 'flagged') card.style.display = flagged ? '' : 'none';
+    else if (type === 'unanswered') card.style.display = !answered ? '' : 'none';
+  });
+}
+
+function submitExam() {
+  document.getElementById('review-panel').classList.remove('show');
+  document.getElementById('quiz-area').style.display = 'none';
+  const panel = document.getElementById('score-panel');
+  const total = TOTAL;
+  const done = Object.keys(answers).length;
+  const cor = QUESTIONS.filter((q,i) => answers[i] === q.ans).length;
+  const pct = done > 0 ? Math.round(cor/total*100) : 0;
+  const col = pct >= 80 ? '#1A6B3C' : pct >= 60 ? '#C8760A' : '#B03020';
+
+  const domains = [...new Set(QUESTIONS.map(q => q.domain))];
+  let drHtml = '';
+  domains.forEach(d => {
+    const dqs = QUESTIONS.map((q,i) => ({q,i})).filter(({q}) => q.domain === d);
+    const dCor = dqs.filter(({q,i}) => answers[i] === q.ans).length;
+    const dDone = dqs.filter(({i}) => answers[i] !== undefined).length;
+    const dp = dDone > 0 ? Math.round(dCor/dDone*100) : 0;
+    const bc = dp >= 70 ? '#1A6B3C' : dp >= 50 ? '#C8760A' : '#B03020';
+    drHtml += `<div class="dr-row">
+      <div class="dr-name">${d}</div>
+      <div class="dr-score" style="color:${bc}">${dCor}/${dDone}</div>
+      <div class="dr-bar"><div class="dr-fill" style="width:${dp}%;background:${bc}"></div></div>
+    </div>`;
+  });
+
+  const msg = pct >= 80 ? 'Excellent. You are well prepared across all domains.'
+    : pct >= 65 ? 'Good performance. Focus additional study on your lower-scoring domains before the exam.'
+    : pct >= 50 ? 'More preparation needed. Review your weakest domains carefully.'
+    : 'Significant preparation required. Work through Study Mode systematically before retrying.';
+
+  panel.innerHTML = `
+    <div class="score-card">
+      <h2 style="font-size:0.8rem;font-family:var(--mono);letter-spacing:3px;color:var(--muted);margin-bottom:24px;">EXAM RESULTS</h2>
+      <div class="score-circle" style="border-color:${col}">
+        <div class="score-pct" style="color:${col}">${pct}%</div>
+        <div class="score-lbl">FINAL SCORE</div>
+      </div>
+      <div class="score-nums">
+        <div class="sn"><div class="sn-val">${total}</div><div class="sn-lbl">TOTAL Q</div></div>
+        <div class="sn"><div class="sn-val" style="color:var(--green)">${cor}</div><div class="sn-lbl">CORRECT</div></div>
+        <div class="sn"><div class="sn-val" style="color:var(--red)">${done-cor}</div><div class="sn-lbl">WRONG</div></div>
+        <div class="sn"><div class="sn-val" style="color:var(--muted)">${total-done}</div><div class="sn-lbl">SKIPPED</div></div>
+      </div>
+      <p class="result-msg">${msg}</p>
+      <button class="btn-restart" onclick="location.reload()">Retake Exam</button>
+    </div>
+    <div class="score-card domain-results">
+      <h3 style="font-size:0.85rem;letter-spacing:2px;font-family:var(--mono);color:var(--muted);margin-bottom:16px;">DOMAIN BREAKDOWN</h3>
+      ${drHtml}
+    </div>`;
+
+  panel.classList.add('show');
+  document.getElementById('bottom-nav').style.display = 'none';
+  window.scrollTo(0,0);
+}
+
+// CALCULATOR
+let calcStr = '';
+function toggleCalc() { document.getElementById('calculator').classList.toggle('show'); }
+function calcInput(v) {
+  if (v==='C') { calcStr=''; document.getElementById('calc-display').textContent='0'; return; }
+  if (v==='=') {
+    try {
+      const r = Function('"use strict"; return ('+calcStr+')')();
+      calcStr = String(Math.round(r*1000000)/1000000);
+      document.getElementById('calc-display').textContent = calcStr;
+    } catch { document.getElementById('calc-display').textContent='Error'; calcStr=''; }
+    return;
+  }
+  calcStr += v;
+  document.getElementById('calc-display').textContent = calcStr;
+}
+
+// Access check
+if (sessionStorage.getItem('cip_access') !== 'true') {
+  window.location.href = '/access?product=exam';
+}
+
+// Init
+buildQNav();
+renderQuestion(0);
+startTimer();
+</script>
+</body>
+</html>
