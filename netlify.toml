@@ -1,0 +1,32 @@
+[build]
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/access"
+  to = "/access.html"
+  status = 200
+
+[[redirects]]
+  from = "/study"
+  to = "/study.html"
+  status = 200
+
+[[redirects]]
+  from = "/exam"
+  to = "/exam.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/privacy.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/terms.html"
+  status = 200
+
+[[redirects]]
+  from = "/cookies"
+  to = "/cookies.html"
+  status = 200
