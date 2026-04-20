@@ -25,7 +25,10 @@
   from = "/terms"
   to = "/terms.html"
   status = 200
-
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml"
 [[redirects]]
   from = "/cookies"
   to = "/cookies.html"
