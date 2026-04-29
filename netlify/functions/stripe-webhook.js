@@ -31,6 +31,7 @@ async function insertCode(code, orderId, productType) {
     const body = JSON.stringify({
       code,
       order_id: `${productType}_${orderId}`,
+      product_type: productType,
       used: false
     });
 
@@ -117,7 +118,8 @@ async function sendEmail(toEmail, code, productType) {
     </div>
     <p>To start your preparation, click the button below and enter your code on the access page.</p>
     <a href="${accessUrl}" class="btn">Access My Test →</a>
-    <p style="font-size:0.82rem">Your code can be used unlimited times — questions are randomized each session. If you have any issues, reply to this email.</p>
+    <p style="font-size:0.82rem">⚠️ If you did not receive this email in your inbox, please check your spam or junk folder. If you still have issues, reply to this email and we will assist you immediately.</p>
+    <p style="font-size:0.82rem">If you have any other questions, reply to this email.</p>
   </div>
   <div class="footer">
     <p>This product is independently developed and is not affiliated with, endorsed by, or licensed by any professional certification body.</p>
@@ -165,7 +167,7 @@ async function sendEmail(toEmail, code, productType) {
 
 // Verify Stripe webhook signature
 function verifyStripeSignature(payload, sigHeader, secret) {
-  if (!secret) return true; // Skip verification if no secret set yet
+  if (!secret) return true;
   const parts = sigHeader.split(',');
   const timestamp = parts.find(p => p.startsWith('t=')).split('=')[1];
   const signature = parts.find(p => p.startsWith('v1=')).split('=').slice(1).join('=');
@@ -191,7 +193,6 @@ exports.handler = async (event) => {
     return { statusCode: 400, body: `Webhook error: ${err.message}` };
   }
 
-  // Only handle successful payments
   if (stripeEvent.type !== 'checkout.session.completed' && 
       stripeEvent.type !== 'payment_intent.succeeded') {
     return { statusCode: 200, body: 'Event ignored' };
@@ -202,7 +203,6 @@ exports.handler = async (event) => {
     const email = session.customer_details?.email || session.receipt_email || session.metadata?.email;
     const orderId = session.id || session.payment_intent;
     
-    // Get product name from metadata or line items description
     const productName = session.metadata?.product_name || 
                        session.description || 
                        'Coating Inspector Exam Prep';
@@ -213,7 +213,6 @@ exports.handler = async (event) => {
       return { statusCode: 200, body: 'No email found' };
     }
 
-    // For bundle: generate 2 codes
     const codes = [];
     if (productType === 'bundle') {
       const code1 = generateCode();
@@ -228,7 +227,6 @@ exports.handler = async (event) => {
       codes.push({ code, type: productType });
     }
 
-    // Send email
     await sendEmail(email, codes.map(c => c.code).join(' / '), productType);
 
     console.log(`✅ Code(s) sent to ${email} for ${productType}`);
