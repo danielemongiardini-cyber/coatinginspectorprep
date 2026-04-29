@@ -208,9 +208,11 @@ footer {
 </footer>
 
 <script>
-// Supabase config - will be populated from environment
 const SUPABASE_URL = 'https://fqbwemzoohpuseoiwoks.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxYndlbXpvb2hwdXNlb2l3b2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU3NTQ1MTksImV4cCI6MjA5MTMzMDUxOX0.RdKGlfAROcR-dTmFLv0tthkS0GyPRC9L5eCZEMBw4CI';
+
+// urlParams dichiarato prima di essere usato
+const urlParams = new URLSearchParams(window.location.search);
 
 // Show success banner if coming from Stripe payment
 if (urlParams.get('status') === 'paid') {
@@ -220,7 +222,6 @@ if (urlParams.get('status') === 'paid') {
 let selectedProduct = 'study';
 
 // Pre-select product from URL param
-const urlParams = new URLSearchParams(window.location.search);
 const productParam = urlParams.get('product');
 if (productParam) {
   setProduct(productParam, document.querySelector(`.tab-btn[onclick*="${productParam}"]`));
@@ -262,8 +263,7 @@ async function validateCode() {
   btn.textContent = 'Verifying...';
 
   try {
-    // Check code in Supabase
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/access_codes?code=eq.${code}&select=id,used,order_id,product_type`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/access_codes?code=eq.${code}&select=id,used,order_id,product_type`, {
       headers: {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -282,10 +282,19 @@ async function validateCode() {
     }
 
     const record = data[0];
-    // Determine which product this code unlocks based on order_id prefix
+
+    // Controlla che il codice corrisponda al prodotto selezionato
+    if (record.product_type && record.product_type !== selectedProduct) {
+      input.classList.add('error');
+      errorMsg.textContent = 'This code is not valid for the selected product. Please select the correct tab.';
+      errorMsg.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Access My Test →';
+      return;
+    }
+
     const product = record.product_type || (record.order_id ? record.order_id.split('_')[0] : selectedProduct);
 
-    // Store in session
     sessionStorage.setItem('cip_access', 'true');
     sessionStorage.setItem('cip_product', product);
     sessionStorage.setItem('cip_code', code);
