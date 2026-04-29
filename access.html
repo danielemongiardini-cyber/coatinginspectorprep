@@ -283,6 +283,16 @@ async function validateCode() {
 
     const record = data[0];
 
+    // Controlla che il codice non sia già stato usato
+    if (record.used) {
+      input.classList.add('error');
+      errorMsg.textContent = 'This code has already been used.';
+      errorMsg.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Access My Test →';
+      return;
+    }
+
     // Controlla che il codice corrisponda al prodotto selezionato
     if (record.product_type && record.product_type !== selectedProduct) {
       input.classList.add('error');
@@ -294,6 +304,18 @@ async function validateCode() {
     }
 
     const product = record.product_type || (record.order_id ? record.order_id.split('_')[0] : selectedProduct);
+
+    // Marca il codice come usato
+    await fetch(`${SUPABASE_URL}/rest/v1/access_codes?code=eq.${code}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ used: true, used_at: new Date().toISOString() })
+    });
 
     sessionStorage.setItem('cip_access', 'true');
     sessionStorage.setItem('cip_product', product);
