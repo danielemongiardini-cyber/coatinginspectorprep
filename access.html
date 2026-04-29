@@ -263,7 +263,7 @@ async function validateCode() {
 
   try {
     // Check code in Supabase
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/access_codes?code=eq.${code}&select=id,used,order_id`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/access_codes?code=eq.${code}&select=id,used,order_id,product_type`, {
       headers: {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -283,7 +283,7 @@ async function validateCode() {
 
     const record = data[0];
     // Determine which product this code unlocks based on order_id prefix
-    const product = record.order_id ? record.order_id.split('_')[0] : selectedProduct;
+    const product = record.product_type || (record.order_id ? record.order_id.split('_')[0] : selectedProduct);
 
     // Store in session
     sessionStorage.setItem('cip_access', 'true');
